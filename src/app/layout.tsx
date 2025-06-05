@@ -24,8 +24,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 			<body className={font.className}>
 				<Providers>
 					<ClerkProvider>
-						<Header />
-						<main className='min-h-screen pt-24 bg-background'>{children}</main>
+						{/* <Header /> */}
+						<main className='min-h-screen bg-background'>{children}</main>
 					</ClerkProvider>
 				</Providers>
 			</body>
