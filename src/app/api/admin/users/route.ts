@@ -40,6 +40,9 @@ export async function GET() {
           ? {
               status: subscription.sub_status,
               type: subscription.sub_type,
+              end_date: subscription.end_date,
+              user_email: subscription.user_email,
+              id: subscription.id
             }
           : null,
       };

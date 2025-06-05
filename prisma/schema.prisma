@@ -8,16 +8,19 @@ datasource db {
 }
 
 model Subscription {
-  id                 String             @id @default(uuid())
-  user_email         String             @unique
-  sub_status         SubscriptionStatus @default(inactive)
-  sub_type           String
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  last_stripe_cs_id  String             @unique
-  stripe_customer_id String             @unique
-  sub_stripe_id      String?
-  user_clerk_id      String             @unique
+  id                String    @id @default(cuid())
+  user_email        String    @unique
+  user_clerk_id     String    @unique
+  sub_status        String    @default("inactive")
+  sub_type          String    @default("free")
+  end_date          DateTime?
+  last_stripe_cs_id String?
+  stripe_customer_id String?
+  sub_stripe_id     String?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  user              User      @relation(fields: [user_clerk_id], references: [clerk_id])
+  extensions        SubscriptionExtension[]
 }
 
 model Project {
@@ -29,10 +32,9 @@ model Project {
   user_clerk_id String
   type          String
   status        String  @default("default")
-
-  webhookLink String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  webhook_link  String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 }
 
 model Audiences {
@@ -44,4 +46,28 @@ model Audiences {
 enum SubscriptionStatus {
   active
   inactive
+}
+
+model SubscriptionExtension {
+  id              String    @id @default(cuid())
+  subscription_id String
+  extended_by     String
+  previous_end    DateTime
+  new_end         DateTime
+  duration_days   Int
+  reason          String?
+  created_at      DateTime  @default(now())
+  subscription    Subscription @relation(fields: [subscription_id], references: [id])
+  admin           User         @relation("ExtendedBy", fields: [extended_by], references: [clerk_id])
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  clerk_id              String    @unique
+  email                 String    @unique
+  name                  String?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  subscription          Subscription?
+  extended_subscriptions SubscriptionExtension[] @relation("ExtendedBy")
 }
