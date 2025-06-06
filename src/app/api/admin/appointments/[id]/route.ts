@@ -13,22 +13,26 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { status } = body;
+    const { status, notes } = body;
 
-    if (!status || !["pending", "confirmed"].includes(status)) {
+    // Validate status if it's being updated
+    if (status && !["pending", "confirmed"].includes(status)) {
       return NextResponse.json(
         { error: "Invalid status" },
         { status: 400 }
       );
     }
 
+    // Prepare update data
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (notes !== undefined) updateData.notes = notes;
+
     const appointment = await prisma.appointment.update({
       where: {
         id: params.id,
       },
-      data: {
-        status,
-      },
+      data: updateData,
       include: {
         user: {
           select: {

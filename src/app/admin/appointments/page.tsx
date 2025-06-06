@@ -56,6 +56,8 @@ export default function AdminAppointmentsPage() {
     notes: "",
   });
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [pendingNotes, setPendingNotes] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     fetchAppointments();
@@ -155,6 +157,7 @@ export default function AdminAppointmentsPage() {
 
   const handleSelectEvent = (event: CalendarEvent) => {
     setSelectedEvent(event);
+    setPendingNotes(event.notes || "");
     setShowDetailsModal(true);
   };
 
@@ -178,6 +181,32 @@ export default function AdminAppointmentsPage() {
     } catch (error) {
       console.error("Error updating appointment status:", error);
       toast.error("Failed to update appointment status");
+    }
+  };
+
+  const handleUpdateNotes = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      setIsUpdating(true);
+      const response = await fetch(`/api/admin/appointments/${selectedEvent.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notes: pendingNotes }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update appointment notes");
+
+      toast.success("Appointment notes updated successfully!");
+      setSelectedEvent({ ...selectedEvent, notes: pendingNotes });
+      fetchAppointments(); // Refresh the calendar
+    } catch (error) {
+      console.error("Error updating appointment notes:", error);
+      toast.error("Failed to update appointment notes");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -290,16 +319,33 @@ export default function AdminAppointmentsPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Time</label>
                   <p className="mt-1 text-sm text-gray-900">
-                    {format(selectedEvent.start, "PPp")} - {format(selectedEvent.end, "p")}
+                    {format(selectedEvent.start, "Pp")} - {format(selectedEvent.end, "Pp")}
                   </p>
                 </div>
 
-                {selectedEvent.notes && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Notes</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedEvent.notes}</p>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                  <textarea
+                    value={pendingNotes}
+                    onChange={(e) => setPendingNotes(e.target.value)}
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    rows={3}
+                    placeholder="Add or edit notes..."
+                  />
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      onClick={handleUpdateNotes}
+                      disabled={isUpdating || pendingNotes === selectedEvent.notes}
+                      className={`px-3 py-1 text-sm font-medium rounded-md ${
+                        isUpdating || pendingNotes === selectedEvent.notes
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      }`}
+                    >
+                      {isUpdating ? "Updating..." : "Update Notes"}
+                    </button>
                   </div>
-                )}
+                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
