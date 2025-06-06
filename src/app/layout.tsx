@@ -1,33 +1,26 @@
 import { Providers } from '@/components/providers'
-import { getSEOTags } from '@/libs/seo'
 import { ClerkProvider } from '@clerk/nextjs'
-import { Viewport } from 'next'
 import { Inter } from 'next/font/google'
-import { ReactNode } from 'react'
+// import './globals.css'
 
 import '@/assets/styles/globals.scss'
-import { Header } from '@/layout'
+const inter = Inter({ subsets: ['latin'] })
 
-const font = Inter({ subsets: ['latin'] })
-
-export const viewport: Viewport = {
-	themeColor: '#000000',
-	width: 'device-width',
-	initialScale: 1,
+export const metadata = {
+	title: 'ClubKeeper',
+	description: 'Manage your club appointments',
 }
 
-export const metadata = getSEOTags()
-
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang='en' suppressHydrationWarning>
-			<body className={font.className}>
-				<Providers>
-					<ClerkProvider>
+			<body className={inter.className}>
+				<ClerkProvider>
+					<Providers>
 						{/* <Header /> */}
 						<main className='min-h-screen bg-background'>{children}</main>
-					</ClerkProvider>
-				</Providers>
+					</Providers>
+				</ClerkProvider>
 			</body>
 		</html>
 	)

@@ -1,13 +1,14 @@
 import { NextResponse, NextRequest } from "next/server";
 import { stripeService } from "@/libs/stripe";
 import prisma from "@/libs/prisma";
-import { auth } from '@clerk/nextjs/server'
+import { currentUser } from '@clerk/nextjs/server'
 
 
 export async function POST(req: NextRequest) {
-  const { userId }: { userId: string | null } = auth()
 
-  if(!userId) {
+    const user = await currentUser()
+
+  if(!user.id) {
     return NextResponse.json(
       {
         error: "Not signed in",
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     const subscription = await prisma.subscription.findFirst({
       where: {
-        user_clerk_id: userId,
+        user_clerk_id: user.id,
       },
     });
 

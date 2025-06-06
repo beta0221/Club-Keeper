@@ -1,18 +1,18 @@
 import PricingSection from '@/components/PricingSection'
 import Scenarios from '@/components/Scenarios'
 import ThankYouPopup from '@/components/ThankyouPopUp'
-import { auth } from '@clerk/nextjs/server'
+import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getSubscriptionByUserId } from '../api/actions'
 
 export default async function Dashboard() {
-	const { userId } = auth()
+	const user = await currentUser()
 
-	if (!userId) {
+	if (!user.id) {
 		redirect('/sign-in')
 	}
 
-	const sub = await getSubscriptionByUserId(userId)
+	const sub = await getSubscriptionByUserId(user.id)
 	const isInactive = sub ? sub?.sub_status !== 'active' : true
 
 	if (isInactive) {

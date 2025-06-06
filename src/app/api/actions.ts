@@ -57,12 +57,12 @@ const subsType = product.metadata.subscription_type || 'default'
 const customerEmail = customer.email;
 const users = await clerkClient.users.getUserList({emailAddress:[customerEmail]})
 
-if (!users.data.length) {
+if (!users.length) {
   console.error('Clerc user not found');
   return NextResponse.json({ error: 'No customer email found for subscription' }, { status: 400 });
 }
 
-const user = users.data[0]
+const user = users[0]
 const subsId = body?.data?.object?.subscription as string
 
 await prisma.subscription.upsert({

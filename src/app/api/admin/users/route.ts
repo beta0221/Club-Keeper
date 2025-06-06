@@ -16,9 +16,7 @@ export async function GET() {
     // For now, we'll just check if the user exists
 
     // Fetch all users from Clerk
-    const clerk = await clerkClient();
-    const response = await clerk.users.getUserList();
-    const users = response.data;
+    const users = await clerkClient.users.getUserList()
 
     // Fetch subscription data for all users
     const subscriptions = await prisma.subscription.findMany({

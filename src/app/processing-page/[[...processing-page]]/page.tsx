@@ -66,7 +66,7 @@ export default function Home() {
 					{isSignedIn}
 					{!isSignedIn ? (
 						<div>
-							<SignUp forceRedirectUrl={fullPath} />
+							<SignUp redirectUrl={fullPath} />
 						</div>
 					) : (
 						<div className='text-center'>

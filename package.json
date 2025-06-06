@@ -10,7 +10,7 @@
 		"migrate-db": "npx prisma migrate dev --name init"
 	},
 	"dependencies": {
-		"@clerk/nextjs": "^6.21.0",
+		"@clerk/nextjs": "^4.31.8",
 		"@headlessui/react": "^1.7.18",
 		"@mdx-js/loader": "^2.3.0",
 		"@mdx-js/react": "^2.3.0",

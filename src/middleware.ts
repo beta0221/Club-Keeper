@@ -1,30 +1,9 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { authMiddleware } from "@clerk/nextjs";
 
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/sign-in(.*)', 
-  '/sign-up(.*)', 
-  '/api/create-checkout-session',
-  '/api/webhook/:path*',
-  '/dashboard',
-  '/api/waiting-list',
-  '/waiting-list',
-  '/blog',
-  '/blog(.*)',
-  '/sitemap.xml',
-  '/processing-page(.*)',
-  '/images/:path*' // Allow access to all files in the images directory
-])
-
-export default clerkMiddleware((auth, request) => {
-  if (!isPublicRoute(request)) {
-    auth.protect()
-  }
-})
+export default authMiddleware({
+  publicRoutes: ["/", "/api/webhook", "/api/appointments"]
+});
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-    '/(api|trpc)(.*)',
-  ],
+  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 };
