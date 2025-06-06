@@ -150,7 +150,7 @@ export async function POST(req: Request) {
 				webhook_id: webhookId.toString(),
 				scenario_id: newid.toString(),
 				user_clerk_id: user.id,
-				webhookLink: webhookLink,
+				webhook_link: webhookLink,
 				assistant_id: assistantId,
 				type: 'make',
 				status: 'active',

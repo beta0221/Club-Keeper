@@ -18,11 +18,11 @@ export async function GET(req: NextRequest) {
 			},
 		})
 
-		if (!project.webhookLink) {
+		if (!project.webhook_link) {
 			throw new Error('Project not found')
 		}
 
-		return NextResponse.json({ success: true, webhookLink: project.webhookLink })
+		return NextResponse.json({ success: true, webhookLink: project.webhook_link })
 	} catch (err) {
 		console.error('Connection error:', err)
 		if (err) {

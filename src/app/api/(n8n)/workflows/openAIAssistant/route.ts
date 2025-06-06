@@ -146,7 +146,7 @@ export async function POST(req: Request) {
 				webhook_id: newid, // Using workflow ID instead of separate webhook ID
 				scenario_id: newid,
 				user_clerk_id: user.id,
-				webhookLink: webhookLink,
+				webhook_link: webhookLink,
 				assistant_id: assistantId,
 				type: 'n8n',
 				status: 'active',

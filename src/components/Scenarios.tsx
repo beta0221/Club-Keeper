@@ -196,7 +196,7 @@ const Scenarios = () => {
 								Assistant ID: {project.assistant_id}
 							</p>
 							<p className='w-full truncate'>
-								Webhook Link: {project.webhookLink}
+								Webhook Link: {project.webhook_link}
 							</p>
 						</div>
 						<Link href={`/chat/${project.id}`} className='w-full'>
