@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface CreateAppointmentModalProps {
   isOpen: boolean;
@@ -26,6 +26,11 @@ export function CreateAppointmentModal({
   },
 }: CreateAppointmentModalProps) {
   const [appointment, setAppointment] = useState(initialValues);
+
+  // Update local state when initialValues change
+  useEffect(() => {
+    setAppointment(initialValues);
+  }, [initialValues]);
 
   const handleSubmit = () => {
     onSubmit(appointment);

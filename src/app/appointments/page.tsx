@@ -3,6 +3,23 @@
 import { useState, useEffect } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { AppLayout } from "@/components/AppLayout";
+import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
+import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from "date-fns";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { CreateAppointmentModal } from '@/components/CreateAppointmentModal';
+
+const locales = {
+  "en-US": require("date-fns/locale/en-US"),
+};
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
 
 interface Appointment {
   id: string;
@@ -16,34 +33,62 @@ interface Appointment {
   };
 }
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  status: string;
+  notes?: string;
+  user: {
+    name: string | null;
+    email: string;
+  };
+}
+
 export default function AppointmentsPage() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [newAppointment, setNewAppointment] = useState({
     startTime: "",
     endTime: "",
     notes: "",
   });
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [pendingNotes, setPendingNotes] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     fetchAppointments();
-  }, [selectedDate]);
+  }, [currentDate]);
+
 
   const fetchAppointments = async () => {
     try {
-      const startDate = new Date(selectedDate);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(selectedDate);
-      endDate.setHours(23, 59, 59, 999);
+      setLoading(true);
+      const startDate = startOfMonth(currentDate);
+      const endDate = endOfMonth(currentDate);
 
       const response = await fetch(
-        `/api/appointments?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+        `/api/admin/appointments?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
       );
       if (!response.ok) throw new Error("Failed to fetch appointments");
       const data = await response.json();
-      setAppointments(data);
+
+      const calendarEvents = data.map((appointment: Appointment) => ({
+        id: appointment.id,
+        title: `${appointment.user.name}(${appointment.id.slice(-5)})`,
+        start: new Date(appointment.start_time),
+        end: new Date(appointment.end_time),
+        status: appointment.status,
+        notes: appointment.notes,
+        user: appointment.user,
+      }));
+
+      setEvents(calendarEvents);
     } catch (error) {
       console.error("Error fetching appointments:", error);
       toast.error("Failed to load appointments");
@@ -52,20 +97,55 @@ export default function AppointmentsPage() {
     }
   };
 
-  const handleDateChange = (days: number) => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + days);
-    setSelectedDate(newDate);
+
+  const isLessThanTwoDaysApart = (date1: Date, date2: Date): boolean => {
+    const diffInMs = Math.abs(date1.getTime() - date2.getTime());
+    const twoDaysInMs = 2 * 24 * 60 * 60 * 1000; // 2 天的毫秒數
+    return diffInMs < twoDaysInMs;
+  }
+  const subtractOneDay = (date: Date): Date => {
+    const newDate = new Date(date); // 複製原本的 Date，避免修改原值
+    newDate.setDate(newDate.getDate() - 1);
+    return newDate;
+  }
+
+  const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
+
+
+    console.log({ start, end })
+    if (isLessThanTwoDaysApart(start, end)) {
+      toast.error("Appointment must be a range of at least 2 days");
+      return;
+    }
+
+    setNewAppointment({
+      startTime: format(start, "yyyy-MM-dd"),
+      endTime: format(subtractOneDay(end), "yyyy-MM-dd"),
+      notes: "",
+    });
+    setShowCreateModal(true);
   };
 
   const handleCreateAppointment = async () => {
     try {
-      const response = await fetch("/api/appointments", {
+      // Convert date strings to full datetime strings
+      const startDateTime = new Date(newAppointment.startTime);
+      const endDateTime = new Date(newAppointment.endTime);
+
+      // Set default time to 3 PM for start and 12 PM for end
+      startDateTime.setHours(15, 0, 0, 0);
+      endDateTime.setHours(12, 0, 0, 0);
+
+      const response = await fetch("/api/admin/appointments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newAppointment),
+        body: JSON.stringify({
+          startTime: startDateTime.toISOString(),
+          endTime: endDateTime.toISOString(),
+          notes: newAppointment.notes,
+        }),
       });
 
       if (!response.ok) throw new Error("Failed to create appointment");
@@ -80,166 +160,85 @@ export default function AppointmentsPage() {
     }
   };
 
+  const eventStyleGetter = (event: CalendarEvent) => {
+    let backgroundColor = "#e5e7eb"; // default gray
+    if (event.status === "confirmed") {
+      backgroundColor = "#86efac"; // green
+    }
+
+    return {
+      style: {
+        backgroundColor,
+        borderRadius: "4px",
+        opacity: 0.8,
+        color: "#1f2937",
+        border: "0px",
+        display: "block",
+      },
+    };
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Appointments</h1>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Create Appointment
-          </button>
-        </div>
+    <AppLayout>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center mb-8">
 
-        {/* Calendar Navigation */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="flex items-center justify-between">
+
+            <h1 className="text-3xl font-bold text-gray-900 mb-8">Appointment</h1>
             <button
-              onClick={() => handleDateChange(-1)}
-              className="p-2 hover:bg-gray-100 rounded-full"
+              onClick={() => {
+                setNewAppointment({ startTime: "", endTime: "", notes: "" });
+                setShowCreateModal(true);
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
-              <ChevronLeft className="h-6 w-6" />
+              Create Appointment
             </button>
-            <h2 className="text-xl font-semibold">
-              {selectedDate.toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </h2>
-            <button
-              onClick={() => handleDateChange(1)}
-              className="p-2 hover:bg-gray-100 rounded-full"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </button>
+
+          </div>
+          
+
+          <div className="bg-white rounded-lg shadow p-6">
+
+            {/* Calendar View */}
+            <div className="bg-white rounded-lg shadow p-4">
+              {loading ? (
+                <div className="text-center py-4">Loading...</div>
+              ) : (
+                <div className="h-[800px]">
+                  <BigCalendar
+                    localizer={localizer}
+                    events={events}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{ height: "100%" }}
+                    eventPropGetter={eventStyleGetter}
+                    // onSelectEvent={handleSelectEvent}
+                    onSelectSlot={handleSelectSlot}
+                    selectable
+                    views={["month"]}
+                    defaultView="month"
+                    date={currentDate}
+                    onNavigate={(date) => setCurrentDate(date)}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Create Appointment Modal */}
+            <CreateAppointmentModal
+              isOpen={showCreateModal}
+              onClose={() => setShowCreateModal(false)}
+              onSubmit={handleCreateAppointment}
+              initialValues={newAppointment}
+            />
+
+
           </div>
         </div>
-
-        {/* Appointments List */}
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-lg font-medium mb-4">Appointments</h3>
-          {loading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : appointments.length === 0 ? (
-            <div className="text-center py-4 text-gray-500">
-              No appointments for this date. Create one to get started!
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {appointments.map((appointment) => (
-                <div
-                  key={appointment.id}
-                  className="p-4 rounded-lg border border-gray-200"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-medium">
-                        {new Date(appointment.start_time).toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })}
-                        {" - "}
-                        {new Date(appointment.end_time).toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {appointment.user.name || appointment.user.email}
-                      </div>
-                      {appointment.notes && (
-                        <div className="mt-2 text-sm text-gray-600">
-                          {appointment.notes}
-                        </div>
-                      )}
-                    </div>
-                    <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        appointment.status === "confirmed"
-                          ? "bg-green-100 text-green-800"
-                          : appointment.status === "cancelled"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {appointment.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Create Appointment Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-medium mb-4">Create Appointment</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={newAppointment.startTime}
-                    onChange={(e) =>
-                      setNewAppointment({ ...newAppointment, startTime: e.target.value })
-                    }
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={newAppointment.endTime}
-                    onChange={(e) =>
-                      setNewAppointment({ ...newAppointment, endTime: e.target.value })
-                    }
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Notes (optional)
-                  </label>
-                  <textarea
-                    value={newAppointment.notes}
-                    onChange={(e) =>
-                      setNewAppointment({ ...newAppointment, notes: e.target.value })
-                    }
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    rows={3}
-                    placeholder="Add any notes or requirements..."
-                  />
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCreateAppointment}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  >
-                    Create
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-    </div>
+    </AppLayout>
+
   );
 } 
