@@ -15,7 +15,7 @@ export async function PATCH(
     const body = await request.json();
     const { status } = body;
 
-    if (!status || !["pending", "confirmed", "cancelled"].includes(status)) {
+    if (!status || !["pending", "confirmed"].includes(status)) {
       return NextResponse.json(
         { error: "Invalid status" },
         { status: 400 }
@@ -44,6 +44,47 @@ export async function PATCH(
     console.error("Error updating appointment:", error);
     return NextResponse.json(
       { error: "Failed to update appointment" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if appointment exists
+    const appointment = await prisma.appointment.findUnique({
+      where: {
+        id: params.id,
+      },
+    });
+
+    if (!appointment) {
+      return NextResponse.json(
+        { error: "Appointment not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete the appointment
+    await prisma.appointment.delete({
+      where: {
+        id: params.id,
+      },
+    });
+
+    return NextResponse.json({ message: "Appointment deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting appointment:", error);
+    return NextResponse.json(
+      { error: "Failed to delete appointment" },
       { status: 500 }
     );
   }
