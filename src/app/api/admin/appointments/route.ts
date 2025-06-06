@@ -119,7 +119,7 @@ export async function POST(request: Request) {
                 start_time: start,
                 end_time: end,
                 notes,
-                status: "confirmed",
+                status: "pending",
                 user: {
                     connect: {
                         clerk_id: user.id,

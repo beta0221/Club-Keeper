@@ -92,14 +92,53 @@ export default function AdminAppointmentsPage() {
     }
   };
 
+
+  const isLessThanTwoDaysApart = (date1: Date, date2: Date): boolean => {
+    const diffInMs = Math.abs(date1.getTime() - date2.getTime());
+    const twoDaysInMs = 2 * 24 * 60 * 60 * 1000; // 2 天的毫秒數
+    return diffInMs < twoDaysInMs;
+  }
+  const subtractOneDay = (date: Date): Date => {
+    const newDate = new Date(date); // 複製原本的 Date，避免修改原值
+    newDate.setDate(newDate.getDate() - 1);
+    return newDate;
+  }
+
+  const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
+    
+    if (isLessThanTwoDaysApart(start, end)) {
+      toast.error("Appointment must be a range of at least 2 days");
+      return;
+    }
+
+    setNewAppointment({
+      startTime: format(start, "yyyy-MM-dd"),
+      endTime: format(subtractOneDay(end), "yyyy-MM-dd"),
+      notes: "",
+    });
+    setShowCreateModal(true);
+  };
+
   const handleCreateAppointment = async () => {
     try {
+      // Convert date strings to full datetime strings
+      const startDateTime = new Date(newAppointment.startTime);
+      const endDateTime = new Date(newAppointment.endTime);
+      
+      // Set default time to 3 PM for start and 12 PM for end
+      startDateTime.setHours(15, 0, 0, 0);
+      endDateTime.setHours(12, 0, 0, 0);
+
       const response = await fetch("/api/admin/appointments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newAppointment),
+        body: JSON.stringify({
+          startTime: startDateTime.toISOString(),
+          endTime: endDateTime.toISOString(),
+          notes: newAppointment.notes,
+        }),
       });
 
       if (!response.ok) throw new Error("Failed to create appointment");
@@ -189,7 +228,10 @@ export default function AdminAppointmentsPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Manage Appointments</h1>
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => {
+              setNewAppointment({ startTime: "", endTime: "", notes: "" });
+              setShowCreateModal(true);
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             Create Appointment
@@ -210,6 +252,8 @@ export default function AdminAppointmentsPage() {
                 style={{ height: "100%" }}
                 eventPropGetter={eventStyleGetter}
                 onSelectEvent={handleSelectEvent}
+                onSelectSlot={handleSelectSlot}
+                selectable
                 views={["month"]}
                 defaultView="month"
                 date={currentDate}
