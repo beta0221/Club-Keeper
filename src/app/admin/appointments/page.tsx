@@ -6,6 +6,8 @@ import { toast } from "react-hot-toast";
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { CreateAppointmentModal } from '@/components/CreateAppointmentModal';
+import { AppointmentDetailsModal } from '@/components/AppointmentDetailsModal';
 
 const locales = {
   "en-US": require("date-fns/locale/en-US"),
@@ -293,159 +295,25 @@ export default function AdminAppointmentsPage() {
         </div>
 
         {/* Appointment Details Modal */}
-        {showDetailsModal && selectedEvent && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-medium">Appointment Details</h3>
-                <button
-                  onClick={() => setShowDetailsModal(false)}
-                  className="text-gray-400 hover:text-gray-500"
-                >
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">User</label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {selectedEvent.user.name || selectedEvent.user.email}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Time</label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {format(selectedEvent.start, "Pp")} - {format(selectedEvent.end, "Pp")}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                  <textarea
-                    value={pendingNotes}
-                    onChange={(e) => setPendingNotes(e.target.value)}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    rows={3}
-                    placeholder="Add or edit notes..."
-                  />
-                  <div className="mt-2 flex justify-end">
-                    <button
-                      onClick={handleUpdateNotes}
-                      disabled={isUpdating || pendingNotes === selectedEvent.notes}
-                      className={`px-3 py-1 text-sm font-medium rounded-md ${
-                        isUpdating || pendingNotes === selectedEvent.notes
-                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                          : "bg-blue-600 text-white hover:bg-blue-700"
-                      }`}
-                    >
-                      {isUpdating ? "Updating..." : "Update Notes"}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
-                    value={selectedEvent.status}
-                    onChange={(e) => handleStatusChange(e.target.value)}
-                    className={`w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${
-                      selectedEvent.status === "confirmed"
-                        ? "bg-green-50 text-green-800"
-                        : "bg-yellow-50 text-yellow-800"
-                    }`}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                  </select>
-                </div>
-
-                <div className="flex justify-end space-x-3 mt-6">
-                  <button
-                    onClick={handleDeleteAppointment}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => setShowDetailsModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <AppointmentDetailsModal
+          isOpen={showDetailsModal}
+          onClose={() => setShowDetailsModal(false)}
+          appointment={selectedEvent}
+          pendingNotes={pendingNotes}
+          isUpdating={isUpdating}
+          onNotesChange={setPendingNotes}
+          onNotesUpdate={handleUpdateNotes}
+          onStatusChange={handleStatusChange}
+          onDelete={handleDeleteAppointment}
+        />
 
         {/* Create Appointment Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-medium mb-4">Create Appointment</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Time
-                  </label>
-                  <input
-                    type="date"
-                    value={newAppointment.startTime}
-                    onChange={(e) =>
-                      setNewAppointment({ ...newAppointment, startTime: e.target.value })
-                    }
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Time
-                  </label>
-                  <input
-                    type="date"
-                    value={newAppointment.endTime}
-                    onChange={(e) =>
-                      setNewAppointment({ ...newAppointment, endTime: e.target.value })
-                    }
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Notes (optional)
-                  </label>
-                  <textarea
-                    value={newAppointment.notes}
-                    onChange={(e) =>
-                      setNewAppointment({ ...newAppointment, notes: e.target.value })
-                    }
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    rows={3}
-                    placeholder="Add any notes or requirements..."
-                  />
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCreateAppointment}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  >
-                    Create
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <CreateAppointmentModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleCreateAppointment}
+          initialValues={newAppointment}
+        />
       </div>
     </div>
   );
