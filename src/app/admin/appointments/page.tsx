@@ -39,7 +39,7 @@ export default function AdminAppointmentsPage() {
       endDate.setHours(23, 59, 59, 999);
 
       const response = await fetch(
-        `/api/admin/timeslots?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+        `/api/admin/appointments?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
       );
       if (!response.ok) throw new Error("Failed to fetch appointments");
       const data = await response.json();
@@ -60,7 +60,7 @@ export default function AdminAppointmentsPage() {
 
   const handleCreateAppointment = async () => {
     try {
-      const response = await fetch("/api/admin/timeslots", {
+      const response = await fetch("/api/admin/appointments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
