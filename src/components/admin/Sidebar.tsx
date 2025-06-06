@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Settings, LayoutDashboard } from "lucide-react";
+import { Users, Settings, LayoutDashboard, Calendar } from "lucide-react";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -18,6 +18,11 @@ export function Sidebar() {
       href: "/admin/users",
       icon: Users,
     },
+    {
+        name: "Appointments",
+        href: "/admin/appointments",
+        icon: Calendar,
+      },
     {
       name: "設定",
       href: "/admin/settings",
