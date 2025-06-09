@@ -5,11 +5,10 @@ import type { Prisma } from "@prisma/client";
 
 // Get available time slots
 export async function GET(request: Request) {
-  try {
-    const user = await currentUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+
+  const user = await currentUser();
+
+  try {    
 
     const { searchParams } = new URL(request.url);
     const startDate = searchParams.get("startDate");
@@ -45,7 +44,7 @@ export async function GET(request: Request) {
 
     // Filter user data based on the requesting user
     const filteredAppointments = appointments.map(appointment => {
-      const isCurrentUserAppointment = appointment.user.clerk_id === user.id;
+      const isCurrentUserAppointment = appointment.user.clerk_id === user?.id;
       return {
         ...appointment,
         user: isCurrentUserAppointment ? appointment.user : null,
