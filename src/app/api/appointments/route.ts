@@ -34,6 +34,7 @@ export async function GET(request: Request) {
           select: {
             name: true,
             email: true,
+            clerk_id: true,
           },
         },
       },
@@ -42,7 +43,17 @@ export async function GET(request: Request) {
       },
     });
 
-    return NextResponse.json(appointments);
+    // Filter user data based on the requesting user
+    const filteredAppointments = appointments.map(appointment => {
+      const isCurrentUserAppointment = appointment.user.clerk_id === user.id;
+      return {
+        ...appointment,
+        user: isCurrentUserAppointment ? appointment.user : null,
+        notes: isCurrentUserAppointment ? appointment.notes : "",
+      };
+    });
+
+    return NextResponse.json(filteredAppointments);
   } catch (error) {
     console.error("Error fetching appointments:", error);
     return NextResponse.json(

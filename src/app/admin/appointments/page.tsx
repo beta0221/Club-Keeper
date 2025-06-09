@@ -7,7 +7,7 @@ import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { CreateAppointmentModal } from '@/components/CreateAppointmentModal';
-import { AppointmentDetailsModal } from '@/components/AppointmentDetailsModal';
+import { AppointmentDetailsModal } from '@/components/admin/AppointmentDetailsModal';
 
 const locales = {
   "en-US": require("date-fns/locale/en-US"),

@@ -8,6 +8,7 @@ import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { CreateAppointmentModal } from '@/components/CreateAppointmentModal';
+import { DetailsModal as AppointmentDetailsModal } from "@/components/appointments/DetailModal";
 
 const locales = {
   "en-US": require("date-fns/locale/en-US"),
@@ -73,20 +74,23 @@ export default function AppointmentsPage() {
       const endDate = endOfMonth(currentDate);
 
       const response = await fetch(
-        `/api/admin/appointments?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+        `/api/appointments?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
       );
       if (!response.ok) throw new Error("Failed to fetch appointments");
       const data = await response.json();
 
-      const calendarEvents = data.map((appointment: Appointment) => ({
-        id: appointment.id,
-        title: `${appointment.user.name}(${appointment.id.slice(-5)})`,
-        start: new Date(appointment.start_time),
-        end: new Date(appointment.end_time),
-        status: appointment.status,
-        notes: appointment.notes,
-        user: appointment.user,
-      }));
+      const calendarEvents = data.map((appointment: Appointment) => {
+        let name = appointment.user ? `⭐ ${appointment.user!.name}` : "已預訂"
+        return {
+          id: appointment.id,
+          title: `${name}(${appointment.id.slice(-5)})`,
+          start: new Date(appointment.start_time),
+          end: new Date(appointment.end_time),
+          status: appointment.status,
+          notes: appointment.notes,
+          user: appointment.user,
+        }
+      });
 
       setEvents(calendarEvents);
     } catch (error) {
@@ -136,7 +140,7 @@ export default function AppointmentsPage() {
       startDateTime.setHours(15, 0, 0, 0);
       endDateTime.setHours(12, 0, 0, 0);
 
-      const response = await fetch("/api/admin/appointments", {
+      const response = await fetch("/api/appointments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,6 +161,62 @@ export default function AppointmentsPage() {
     } catch (error) {
       console.error("Error creating appointment:", error);
       toast.error("Failed to create appointment");
+    }
+  };
+
+  const handleSelectEvent = (event: CalendarEvent) => {
+    if (!event.user) { return }
+    setSelectedEvent(event);
+    setPendingNotes(event.notes || "");
+    setShowDetailsModal(true);
+  };
+
+  const handleUpdateNotes = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      setIsUpdating(true);
+      const response = await fetch(`/api/appointments/${selectedEvent.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notes: pendingNotes }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update appointment notes");
+
+      toast.success("Appointment notes updated successfully!");
+      setSelectedEvent({ ...selectedEvent, notes: pendingNotes });
+      fetchAppointments(); // Refresh the calendar
+    } catch (error) {
+      console.error("Error updating appointment notes:", error);
+      toast.error("Failed to update appointment notes");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteAppointment = async () => {
+    if (!selectedEvent) return;
+
+    if (!confirm("Are you sure you want to delete this appointment?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/appointments/${selectedEvent.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete appointment");
+
+      toast.success("Appointment deleted successfully!");
+      setShowDetailsModal(false);
+      fetchAppointments(); // Refresh the calendar
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      toast.error("Failed to delete appointment");
     }
   };
 
@@ -197,7 +257,7 @@ export default function AppointmentsPage() {
             </button>
 
           </div>
-          
+
 
           <div className="bg-white rounded-lg shadow p-6">
 
@@ -214,7 +274,7 @@ export default function AppointmentsPage() {
                     endAccessor="end"
                     style={{ height: "100%" }}
                     eventPropGetter={eventStyleGetter}
-                    // onSelectEvent={handleSelectEvent}
+                    onSelectEvent={handleSelectEvent}
                     onSelectSlot={handleSelectSlot}
                     selectable
                     views={["month"]}
@@ -225,6 +285,18 @@ export default function AppointmentsPage() {
                 </div>
               )}
             </div>
+
+            {/* Appointment Details Modal */}
+            <AppointmentDetailsModal
+              isOpen={showDetailsModal}
+              onClose={() => setShowDetailsModal(false)}
+              appointment={selectedEvent}
+              pendingNotes={pendingNotes}
+              isUpdating={isUpdating}
+              onNotesChange={setPendingNotes}
+              onNotesUpdate={handleUpdateNotes}
+              onDelete={handleDeleteAppointment}
+            />
 
             {/* Create Appointment Modal */}
             <CreateAppointmentModal
