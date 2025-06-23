@@ -56,13 +56,13 @@ export async function GET(request: Request) {
 // Create Appointments
 export async function POST(request: Request) {
     try {
-        const user = await currentUser();
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        // const user = await currentUser();
+        // if (!user) {
+        //     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        // }
 
         const body = await request.json();
-        const { startTime, endTime, notes } = body;
+        const { startTime, endTime, notes, userId } = body;
 
         if (!startTime || !endTime) {
             return NextResponse.json(

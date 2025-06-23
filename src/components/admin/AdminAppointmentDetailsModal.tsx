@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 
-interface AppointmentDetailsModalProps {
+interface AdminAppointmentDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   appointment: {
@@ -23,7 +23,7 @@ interface AppointmentDetailsModalProps {
   onDelete: () => void;
 }
 
-export function AppointmentDetailsModal({
+export function AdminAppointmentDetailsModal({
   isOpen,
   onClose,
   appointment,
@@ -33,7 +33,7 @@ export function AppointmentDetailsModal({
   onNotesUpdate,
   onStatusChange,
   onDelete,
-}: AppointmentDetailsModalProps) {
+}: AdminAppointmentDetailsModalProps) {
   if (!isOpen || !appointment) return null;
 
   return (

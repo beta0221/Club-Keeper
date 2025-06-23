@@ -6,8 +6,8 @@ import { toast } from "react-hot-toast";
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { CreateAppointmentModal } from '@/components/CreateAppointmentModal';
-import { AppointmentDetailsModal } from '@/components/admin/AppointmentDetailsModal';
+import { AdminAppointmentDetailsModal } from '@/components/admin/AdminAppointmentDetailsModal';
+import { AdminCreateAppointmentModal } from '@/components/AdminCreateAppointmentModal';
 
 const locales = {
   "en-US": require("date-fns/locale/en-US"),
@@ -295,7 +295,7 @@ export default function AdminAppointmentsPage() {
         </div>
 
         {/* Appointment Details Modal */}
-        <AppointmentDetailsModal
+        <AdminAppointmentDetailsModal
           isOpen={showDetailsModal}
           onClose={() => setShowDetailsModal(false)}
           appointment={selectedEvent}
@@ -308,7 +308,7 @@ export default function AdminAppointmentsPage() {
         />
 
         {/* Create Appointment Modal */}
-        <CreateAppointmentModal
+        <AdminCreateAppointmentModal
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onSubmit={handleCreateAppointment}
