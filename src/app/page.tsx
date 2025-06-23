@@ -66,7 +66,7 @@ export default function HomePage() {
         </div>
 
 
-        <div className="mb-16 flex-1 flex justify-center">
+        <div className="mb-4 md:mb-16 px-4 flex-1 flex justify-center">
           <Image
             src="/assets/IMG_7930.png"
             alt="Cozy Living Room"
@@ -77,7 +77,7 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="mb-16 flex-1 flex justify-center">
+        <div className="mb-4 md:mb-16 px-4 flex-1 flex justify-center">
           <Image
             src="/assets/IMG_8923.png"
             alt="Cozy Living Room"
@@ -88,7 +88,7 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="mb-16 flex-1 flex justify-center">
+        <div className="mb-4 md:mb-16 px-4 flex-1 flex justify-center">
           <Image
             src="/assets/IMG_4837.png"
             alt="Cozy Living Room"
