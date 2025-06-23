@@ -14,6 +14,8 @@ const locales = {
   "en-US": require("date-fns/locale/en-US"),
 };
 
+localStorage.theme = 'light'
+
 const localizer = dateFnsLocalizer({
   format,
   parse,
