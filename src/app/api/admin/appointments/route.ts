@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -62,11 +62,23 @@ export async function POST(request: Request) {
         // }
 
         const body = await request.json();
-        const { startTime, endTime, notes, userId } = body;
+        const { startTime, endTime, notes, userId, userEmail } = body;
 
         if (!startTime || !endTime) {
             return NextResponse.json(
                 { error: "Start time and end time are required" },
+                { status: 400 }
+            );
+        }
+
+        const users = await clerkClient.users.getUserList({
+            userId: [userId],
+            emailAddress: [userEmail],
+        });
+
+        if (users.length === 0) {
+            return NextResponse.json(
+                { error: "User not found" },
                 { status: 400 }
             );
         }
@@ -122,7 +134,7 @@ export async function POST(request: Request) {
                 status: "pending",
                 user: {
                     connect: {
-                        clerk_id: user.id,
+                        clerk_id: users[0].id,
                     },
                 },
             },

@@ -76,7 +76,7 @@ export default function AdminAppointmentsPage() {
       );
       if (!response.ok) throw new Error("Failed to fetch appointments");
       const data = await response.json();
-      
+
       const calendarEvents = data.map((appointment: Appointment) => ({
         id: appointment.id,
         title: `${appointment.user.name}(${appointment.id.slice(-5)})`,
@@ -86,7 +86,7 @@ export default function AdminAppointmentsPage() {
         notes: appointment.notes,
         user: appointment.user,
       }));
-      
+
       setEvents(calendarEvents);
     } catch (error) {
       console.error("Error fetching appointments:", error);
@@ -109,7 +109,7 @@ export default function AdminAppointmentsPage() {
   }
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
-    
+
     if (isLessThanTwoDaysApart(start, end)) {
       toast.error("Appointment must be a range of at least 2 days");
       return;
@@ -123,39 +123,11 @@ export default function AdminAppointmentsPage() {
     setShowCreateModal(true);
   };
 
-  const handleCreateAppointment = async () => {
-    try {
-      // Convert date strings to full datetime strings
-      const startDateTime = new Date(newAppointment.startTime);
-      const endDateTime = new Date(newAppointment.endTime);
-      
-      // Set default time to 3 PM for start and 12 PM for end
-      startDateTime.setHours(15, 0, 0, 0);
-      endDateTime.setHours(12, 0, 0, 0);
-
-      const response = await fetch("/api/admin/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          startTime: startDateTime.toISOString(),
-          endTime: endDateTime.toISOString(),
-          notes: newAppointment.notes,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to create appointment");
-
-      toast.success("Appointment created successfully!");
-      setShowCreateModal(false);
-      setNewAppointment({ startTime: "", endTime: "", notes: "" });
-      fetchAppointments();
-    } catch (error) {
-      console.error("Error creating appointment:", error);
-      toast.error("Failed to create appointment");
-    }
-  };
+  const handleCreateAppointmentSuccess = () => {
+    setShowCreateModal(false);
+    setNewAppointment({ startTime: "", endTime: "", notes: "" });
+    fetchAppointments();
+  }
 
   const handleSelectEvent = (event: CalendarEvent) => {
     setSelectedEvent(event);
@@ -311,7 +283,7 @@ export default function AdminAppointmentsPage() {
         <AdminCreateAppointmentModal
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreateAppointment}
+          onSuccess={handleCreateAppointmentSuccess}
           initialValues={newAppointment}
         />
       </div>
