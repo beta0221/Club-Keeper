@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -16,6 +16,16 @@ export async function POST(req: Request) {
     if (!durationDays || !userEmail) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
+    
+    const result = await clerkClient.users.getUserList({
+      emailAddress: [userEmail],
+    });
+
+    if (result.length === 0) {
+      return new NextResponse("Missing required fields", { status: 400 });
+    }
+
+    let clertUser = result[0]
 
     // First, ensure the user exists
     const targetUser = await prisma.user.upsert({
@@ -23,8 +33,8 @@ export async function POST(req: Request) {
       update: {},
       create: {
         email: userEmail,
-        clerk_id: user.id,
-        name: user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : null,
+        clerk_id: clertUser.id,
+        name: clertUser.firstName ? `${clertUser.firstName} ${clertUser .lastName || ''}`.trim() : null,
       },
     });
 
