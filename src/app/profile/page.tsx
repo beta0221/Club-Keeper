@@ -19,7 +19,7 @@ export default function ProfilePage() {
 
           <div className="space-y-8">
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="md:bg-white rounded-lg md:shadow md:p-6">
               <AppointmentList />
               {/* </div>
 
@@ -27,9 +27,14 @@ export default function ProfilePage() {
               <div className='my-6'>
 
               </div>
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="md:bg-white rounded-lg md:shadow md:p-6">
                 <h2 className="text-xl font-semibold mb-4">Profile</h2>
-                <UserProfile />
+                <UserProfile appearance={{
+                  elements: {
+                    rootBox: 'w-full md:w-10/12',
+                    card: 'w-full'
+                  },
+                }} />
               </div>
 
             </div>

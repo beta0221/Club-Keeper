@@ -33,14 +33,14 @@ export default function AppointmentList() {
     }, []);
   
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-2 md:p-6">
         <h2 className="text-xl font-semibold mb-4">My Appointments</h2>
         {loading ? (
           <div className="text-center py-4">Loading...</div>
         ) : appointments.length === 0 ? (
           <div className="text-center py-4 text-gray-500">No appointments found</div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2 md:space-y-4">
             {appointments.map((appointment) => (
               <div key={appointment.id} className="border rounded-lg p-4">
                 <div className="flex justify-between items-start">
