@@ -1,5 +1,5 @@
 "use server"
-import prisma from "@/libs/prisma";
+import { prisma } from "@/lib/prisma";
 import { clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';

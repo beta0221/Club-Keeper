@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { stripeService } from "@/libs/stripe";
-import prisma from "@/libs/prisma";
+import { prisma } from "@/lib/prisma";
 import { currentUser } from '@clerk/nextjs/server'
 
 

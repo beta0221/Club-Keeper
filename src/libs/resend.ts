@@ -1,7 +1,7 @@
 import InvoiceTemplate from '@/components/email-templates/Invoice'
 import ThankYouTemplate from '@/components/email-templates/ThanksYouTemplate'
 import config from '@/config'
-import prisma from '@/libs/prisma'
+import { prisma } from '@/lib/prisma'
 import { Resend } from 'resend'
 
 class ResendService {
