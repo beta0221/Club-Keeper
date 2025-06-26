@@ -6,8 +6,8 @@ import '@/assets/styles/globals.scss'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-	title: 'ClubKeeper',
-	description: 'Manage your club appointments',
+	title: 'Softdays Cabin',
+	description: '緩緩山海 靜靜小屋',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -15,7 +15,7 @@ export default function HomePage() {
               您的第二個家。SoftDays 座落於大自然的懷抱中，為您提供一個寧靜的避風港，讓您享受舒適且難忘的住宿體驗。
             </p>
             <a
-              href="#book"
+              href="/profile"
               className="inline-block bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition"
             >
               成為我們的會員
@@ -106,7 +106,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold text-amber-900 mb-4">一起加入我們吧！</h2>
             <p className="text-amber-800 mb-6">預訂您的 SoftDays 之旅，體驗舒適、魅力與熱情款待。</p>
             <a
-              href="mailto:info@SoftDays.com"
+              href="/profile"
               className="inline-block bg-amber-600 hover:bg-amber-700 text-white font-semibold px-8 py-3 rounded-lg shadow transition"
             >
               成為我們的會員
