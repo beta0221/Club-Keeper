@@ -5,8 +5,8 @@ import Image from 'next/image';
 export default function HomePage() {
 
   const images = [
-    "Tezza-9851.JPG",
-    "R0021557.JPG",
+    "Tezza-9851.jpg",
+    "R0021557.jpg",
     "R0021524.JPG",
     "R0021453.JPG",
     "R0021710.jpg",
