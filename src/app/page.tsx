@@ -1,7 +1,22 @@
 import { AppLayout } from '@/components/AppLayout';
+import { Map } from 'lucide-react';
 import Image from 'next/image';
 
 export default function HomePage() {
+
+  const images = [
+    "Tezza-9851.JPG",
+    "R0021557.JPG",
+    "R0021524.JPG",
+    "R0021453.JPG",
+    "R0021710.jpg",
+    "Tezza-7344.JPG",
+    "R0021553.JPG",
+    "R0021771.JPG",
+    "R0021442.jpg"
+  ];
+
+
   return (
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white py-8">
@@ -65,39 +80,20 @@ export default function HomePage() {
           </div>
         </div>
 
-
-        <div className="mb-4 md:mb-16 px-4 flex-1 flex justify-center">
-          <Image
-            src="/assets/IMG_7930.png"
-            alt="溫馨客廳"
-            width={480}
-            height={320}
-            className="rounded-2xl shadow-lg object-cover"
-            priority
-          />
-        </div>
-
-        <div className="mb-4 md:mb-16 px-4 flex-1 flex justify-center">
-          <Image
-            src="/assets/IMG_8923.png"
-            alt="溫馨客廳"
-            width={480}
-            height={320}
-            className="rounded-2xl shadow-lg object-cover"
-            priority
-          />
-        </div>
-
-        <div className="mb-4 md:mb-16 px-4 flex-1 flex justify-center">
-          <Image
-            src="/assets/IMG_4837.png"
-            alt="溫馨客廳"
-            width={480}
-            height={320}
-            className="rounded-2xl shadow-lg object-cover"
-            priority
-          />
-        </div>
+        {
+          images.map((image) => (
+            <div className="mb-4 md:mb-16 px-4 flex-1 flex justify-center">
+              <Image
+                src={`/assets/${image}`}
+                alt="溫馨客廳"
+                width={480}
+                height={320}
+                className="rounded-2xl shadow-lg object-cover"
+                priority
+              />
+            </div>
+          ))
+        }
 
         {/* Call to Action */}
         <div id="book" className="max-w-3xl mx-auto px-4 mb-12">
