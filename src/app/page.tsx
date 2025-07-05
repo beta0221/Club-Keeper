@@ -52,7 +52,7 @@ export default function HomePage() {
 
   const upcomingList = [
     {
-      image: 'tiny-office.jpg',
+      image: 'tiny-office.png',
       title: '辦公空間',
       description: '數位遊牧的人有福了',
     },
