@@ -1,5 +1,5 @@
 import { AppLayout } from '@/components/AppLayout';
-import { Map } from 'lucide-react';
+import { Facility } from '@/components/Facility';
 import Image from 'next/image';
 
 export default function HomePage() {
@@ -16,6 +16,52 @@ export default function HomePage() {
     "R0021442.jpg"
   ];
 
+  const facilityList = [
+    {
+      image: 'tiny-house3.png',
+      title: '寵物友善',
+      description: '帶上最愛你的寵物一起渡假',
+    },
+    {
+      image: 'tiny-house3.png',
+      title: '麻將桌',
+      description: '手癢摸兩圈',
+    },
+    {
+      image: 'tiny-house3.png',
+      title: '壁爐',
+      description: '寒冷的冬天，一起盯著營火發呆',
+    },
+    {
+      image: 'tiny-house3.png',
+      title: '衝浪板架',
+      description: '脫離初學的浪人當然要有自己的浪板',
+    },
+    {
+      image: 'tiny-house3.png',
+      title: '自行車',
+      description: '綿延的海岸線，騎著單車到處冒險',
+    },
+    {
+      image: 'tiny-house3.png',
+      title: '陽傘、野餐用具',
+      description: '都幫你準備好了，出門不用再大包小包',
+    }
+  ];
+
+
+  const upcomingList = [
+    {
+      image: 'tiny-office.jpg',
+      title: '辦公空間',
+      description: '數位遊牧的人有福了',
+    },
+    {
+      image: 'sauna-cabin.webp',
+      title: '桑拿房',
+      description: '冬天就是要三溫暖',
+    }
+  ];
 
   return (
     <AppLayout>
@@ -60,32 +106,44 @@ export default function HomePage() {
 
         {/* Amenities Section */}
         <div className="max-w-6xl mx-auto px-4 mb-16">
-          <h2 className="text-2xl font-bold text-amber-900 mb-8 text-center">設施</h2>
+          <h2 className="text-2xl font-bold text-amber-900 mb-8 text-center">SoftDays 提供</h2>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-              <Image src="/assets/tiny-house1.png" alt="壁爐" width={80} height={80} />
-              <h3 className="text-lg font-semibold text-amber-800 mt-4 mb-2">溫馨壁爐</h3>
-              <p className="text-amber-700 text-center">探索一天後，在壁爐旁溫暖身心。</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-              <Image src="/assets/tiny-house2.png" alt="早餐" width={80} height={80} />
-              <h3 className="text-lg font-semibold text-amber-800 mt-4 mb-2">手作早餐</h3>
-              <p className="text-amber-700 text-center">以美味且在地的新鮮早餐展開新的一天。</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-              <Image src="/assets/tiny-house3.png" alt="自然" width={80} height={80} />
-              <h3 className="text-lg font-semibold text-amber-800 mt-4 mb-2">自然步道</h3>
-              <p className="text-amber-700 text-center">走出門外即可享受美麗的步行與自行車道。</p>
-            </div>
+            {facilityList.map((item, index) => (
+              <Facility
+                key={index}
+                image={item.image}
+                title={item.title}
+                description={item.description}
+              />
+            ))}
           </div>
         </div>
 
+        {/* Up Comming Section */}
+        <div className="max-w-6xl mx-auto px-4 mb-16">
+          <h2 className="text-2xl font-bold text-amber-900 mb-8 text-center">籌備中，敬請期待</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {upcomingList.map((item, index) => (
+              <Facility
+                key={index}
+                image={item.image}
+                title={item.title}
+                description={item.description}
+                isGray
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Images Wall Section */}
         {
           images.map((image) => (
             <div className="mb-4 md:mb-16 px-4 flex-1 flex justify-center">
               <Image
                 src={`/assets/${image}`}
-                alt="溫馨客廳"
+                alt=""
                 width={480}
                 height={320}
                 className="rounded-2xl shadow-lg object-cover"
